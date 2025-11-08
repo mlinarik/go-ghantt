@@ -5,7 +5,11 @@ WORKDIR /app
 
 # Copy go mod files
 COPY go.mod go.sum* ./
-RUN go mod download
+
+# Download dependencies and update to latest versions
+RUN go mod download && \
+    go get -u ./... && \
+    go mod tidy
 
 # Copy source code
 COPY *.go ./
@@ -16,7 +20,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o go-ghant
 # Final stage
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
+# Update package index and upgrade all packages, then install ca-certificates
+RUN apk update && \
+    apk upgrade && \
+    apk --no-cache add ca-certificates
 
 WORKDIR /app
 
