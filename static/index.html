@@ -12,6 +12,7 @@
             <h1>🗓️ Gantt Chart Creator</h1>
             <div class="header-actions">
                 <button id="newChartBtn" class="btn btn-primary">New Chart</button>
+                <button id="loadChartBtn" class="btn btn-secondary">Load Chart</button>
                 <button id="saveChartBtn" class="btn btn-success">Save Chart</button>
             </div>
         </header>
@@ -163,6 +164,51 @@
             <div class="modal-footer">
                 <button id="cancelTask" class="btn btn-secondary">Cancel</button>
                 <button id="saveTask" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Chart Modal -->
+    <div id="loadChartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Load Chart</h3>
+                <span class="close" id="closeLoadChart">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Select a chart to load:</label>
+                    <div id="chartList" class="chart-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelLoadChart" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Chart Modal -->
+    <div id="saveChartModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Save Chart</h3>
+                <span class="close" id="closeSaveChart">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="saveChartName">Chart Name</label>
+                    <input type="text" id="saveChartName" placeholder="Enter chart name">
+                </div>
+                <div class="form-group">
+                    <label>Or select existing chart to overwrite:</label>
+                    <select id="existingChartSelect" class="form-control">
+                        <option value="">-- Save as new --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSaveChart" class="btn btn-secondary">Cancel</button>
+                <button id="confirmSaveChart" class="btn btn-success">Save</button>
             </div>
         </div>
     </div>

@@ -343,6 +343,50 @@ textarea {
     border-top: 1px solid #eee;
 }
 
+/* Chart List */
+.chart-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.chart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.chart-item:hover {
+    background: #e9ecef;
+}
+
+.chart-item-info {
+    flex: 1;
+}
+
+.chart-item-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.chart-item-date {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.chart-item-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
 /* Chart SVG styling */
 #chartPreview svg {
     max-width: 100%;

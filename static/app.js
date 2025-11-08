@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupEventListeners() {
     // Header actions
     document.getElementById('newChartBtn').addEventListener('click', createNewChart);
-    document.getElementById('saveChartBtn').addEventListener('click', saveChart);
+    document.getElementById('loadChartBtn').addEventListener('click', openLoadChartModal);
+    document.getElementById('saveChartBtn').addEventListener('click', openSaveChartModal);
     
     // Export buttons
     document.getElementById('exportSVG').addEventListener('click', () => exportChart('svg'));
@@ -36,6 +37,23 @@ function setupEventListeners() {
     // Task modal
     document.getElementById('saveTask').addEventListener('click', saveTask);
     document.getElementById('cancelTask').addEventListener('click', closeTaskModal);
+    
+    // Load chart modal
+    document.getElementById('closeLoadChart').addEventListener('click', closeLoadChartModal);
+    document.getElementById('cancelLoadChart').addEventListener('click', closeLoadChartModal);
+    
+    // Save chart modal
+    document.getElementById('closeSaveChart').addEventListener('click', closeSaveChartModal);
+    document.getElementById('cancelSaveChart').addEventListener('click', closeSaveChartModal);
+    document.getElementById('confirmSaveChart').addEventListener('click', confirmSaveChart);
+    document.getElementById('existingChartSelect').addEventListener('change', (e) => {
+        if (e.target.value) {
+            document.getElementById('saveChartName').value = '';
+            document.getElementById('saveChartName').disabled = true;
+        } else {
+            document.getElementById('saveChartName').disabled = false;
+        }
+    });
     
     // Close modals when clicking X or outside
     document.querySelectorAll('.modal .close').forEach(btn => {
@@ -86,6 +104,16 @@ function updateUI() {
     
     // Update preview
     updatePreview();
+}
+
+function updateUIFromChart() {
+    updateUI();
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function renderCategories() {
@@ -347,10 +375,147 @@ function dragEnd(event) {
 }
 
 // Save and export
+// Load Chart Modal
+async function openLoadChartModal() {
+    try {
+        const response = await fetch('/api/charts');
+        if (!response.ok) throw new Error('Failed to load charts');
+        
+        const charts = await response.json();
+        const chartList = document.getElementById('chartList');
+        chartList.innerHTML = '';
+        
+        if (charts.length === 0) {
+            chartList.innerHTML = '<p style="text-align: center; color: #6c757d;">No saved charts found</p>';
+        } else {
+            charts.forEach(chart => {
+                const item = document.createElement('div');
+                item.className = 'chart-item';
+                item.innerHTML = `
+                    <div class="chart-item-info">
+                        <div class="chart-item-name">${escapeHtml(chart.title || 'Untitled Chart')}</div>
+                        <div class="chart-item-date">ID: ${chart.id}</div>
+                    </div>
+                    <div class="chart-item-actions">
+                        <button class="btn btn-sm btn-primary" onclick="loadChart('${chart.id}')">Load</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteChart('${chart.id}')">Delete</button>
+                    </div>
+                `;
+                chartList.appendChild(item);
+            });
+        }
+        
+        document.getElementById('loadChartModal').classList.add('active');
+    } catch (error) {
+        console.error('Error loading charts:', error);
+        alert('Error loading charts: ' + error.message);
+    }
+}
+
+function closeLoadChartModal() {
+    document.getElementById('loadChartModal').classList.remove('active');
+}
+
+async function loadChart(id) {
+    try {
+        const response = await fetch(`/api/charts/${id}`);
+        if (!response.ok) throw new Error('Failed to load chart');
+        
+        currentChart = await response.json();
+        updateUIFromChart();
+        renderChart();
+        closeLoadChartModal();
+        alert('Chart loaded successfully!');
+    } catch (error) {
+        console.error('Error loading chart:', error);
+        alert('Error loading chart: ' + error.message);
+    }
+}
+
+async function deleteChart(id) {
+    if (!confirm('Are you sure you want to delete this chart?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/charts/${id}`, { method: 'DELETE' });
+        if (!response.ok) throw new Error('Failed to delete chart');
+        
+        alert('Chart deleted successfully!');
+        openLoadChartModal(); // Refresh the list
+    } catch (error) {
+        console.error('Error deleting chart:', error);
+        alert('Error deleting chart: ' + error.message);
+    }
+}
+
+// Save Chart Modal
+async function openSaveChartModal() {
+    try {
+        // Load existing charts for the dropdown
+        const response = await fetch('/api/charts');
+        if (response.ok) {
+            const charts = await response.json();
+            const select = document.getElementById('existingChartSelect');
+            select.innerHTML = '<option value="">-- Save as new --</option>';
+            charts.forEach(chart => {
+                const option = document.createElement('option');
+                option.value = chart.id;
+                option.textContent = chart.title || 'Untitled Chart';
+                select.appendChild(option);
+            });
+        }
+        
+        // Pre-fill with current chart title if exists
+        document.getElementById('saveChartName').value = currentChart.title || '';
+        document.getElementById('saveChartName').disabled = false;
+        document.getElementById('existingChartSelect').value = currentChart.id || '';
+        
+        if (currentChart.id) {
+            document.getElementById('existingChartSelect').value = currentChart.id;
+            document.getElementById('saveChartName').disabled = true;
+        }
+        
+        document.getElementById('saveChartModal').classList.add('active');
+    } catch (error) {
+        console.error('Error opening save modal:', error);
+    }
+}
+
+function closeSaveChartModal() {
+    document.getElementById('saveChartModal').classList.remove('active');
+}
+
+async function confirmSaveChart() {
+    const existingId = document.getElementById('existingChartSelect').value;
+    const newName = document.getElementById('saveChartName').value.trim();
+    
+    if (!existingId && !newName) {
+        alert('Please enter a chart name or select an existing chart');
+        return;
+    }
+    
+    // Update chart title if saving as new
+    if (!existingId && newName) {
+        currentChart.title = newName;
+    }
+    
+    // If overwriting existing, use that ID
+    if (existingId) {
+        currentChart.id = existingId;
+    }
+    
+    await saveChart();
+    closeSaveChartModal();
+}
+
 async function saveChart() {
     try {
-        const response = await fetch('/api/charts', {
-            method: 'POST',
+        const method = currentChart.id ? 'PUT' : 'POST';
+        const url = currentChart.id ? `/api/charts/${currentChart.id}` : '/api/charts';
+        
+        const response = await fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(currentChart)
         });
