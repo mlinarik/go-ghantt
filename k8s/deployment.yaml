@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: go-ghantt
-  namespace: go-ghantt
+  name: go-gantt
+  namespace: go-gantt
   labels:
-    app: go-ghantt
+    app: go-gantt
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: go-ghantt
+      app: go-gantt
   template:
     metadata:
       labels:
-        app: go-ghantt
+        app: go-gantt
     spec:
       containers:
-      - name: go-ghantt
-        image: docker.io/mlinarik/go-ghantt:latest
+      - name: go-gantt
+        image: docker.io/mlinarik/go-gantt:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
@@ -53,4 +53,4 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: go-ghantt-data
+          claimName: go-gantt-data
