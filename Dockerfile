@@ -6,16 +6,16 @@ WORKDIR /app
 # Copy go mod files
 COPY go.mod go.sum* ./
 
-# Download dependencies and update to latest versions
-RUN go mod download && \
-    go get -u ./... && \
-    go mod tidy
+# Download dependencies
+RUN go mod download
 
 # Copy source code
 COPY *.go ./
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o go-ghant
+# Update to latest versions and build
+RUN go get -u ./... && \
+    go mod tidy && \
+    CGO_ENABLED=0 GOOS=linux go build -o go-ghant
 
 # Final stage
 FROM alpine:latest
