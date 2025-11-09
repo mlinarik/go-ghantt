@@ -1,0 +1,55 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  name: 'adc'
+
+variables:
+  GOVERSION: '1.21'
+  # SONAR_PROJECT_KEY should be defined as a secret variable in Azure DevOps Pipeline variables
+
+steps:
+  # Prepare Analysis Configuration
+  - task: SonarQubePrepare@5
+    displayName: 'Prepare SonarQube Analysis'
+    inputs:
+      SonarQube: 'SonarQube Community Build'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: '$(SONAR_PROJECT_KEY)'
+      cliProjectName: 'go-gantt'
+      cliSources: '.'
+
+  # Set up Go environment
+  - task: GoTool@0
+    displayName: 'Set up Go'
+    inputs:
+      version: '$(GOVERSION)'
+
+  # Get Go dependencies
+  - script: |
+      go mod download
+    displayName: 'Download Go dependencies'
+
+  # Build the application
+  - script: |
+      go build -v -o go-gantt .
+    displayName: 'Build Go application'
+
+  # Run tests (optional but recommended)
+  - script: |
+      go test -v ./...
+    displayName: 'Run tests'
+    continueOnError: true
+
+  # Run Code Analysis
+  - task: SonarQubeAnalyze@5
+    displayName: 'Run SonarQube Code Analysis'
+
+  # Publish Quality Gate Result
+  - task: SonarQubePublish@5
+    displayName: 'Publish SonarQube Quality Gate Result'
+    inputs:
+      pollingTimeoutSec: '300'
