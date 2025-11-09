@@ -5,6 +5,8 @@ trigger:
 
 pool:
   name: 'adc'
+  demands:
+    - agent.name -equals ubuntu01
 
 variables:
   - group: 'sonarqube'
