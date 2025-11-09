@@ -28,11 +28,12 @@ steps:
     displayName: 'Setup Java 17'
 
   # Install SonarScanner CLI
-  - script: |
-      cd $(Agent.BuildDirectory)
+  - bash: |
+      BUILD_DIR="$(Agent.BuildDirectory)"
+      cd "$BUILD_DIR"
       wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
       unzip -q sonar-scanner-cli-5.0.1.3006-linux.zip
-      SCANNER_PATH=$(Agent.BuildDirectory)/sonar-scanner-5.0.1.3006-linux/bin
+      SCANNER_PATH="$BUILD_DIR/sonar-scanner-5.0.1.3006-linux/bin"
       echo "SonarScanner installed at: $SCANNER_PATH"
       echo "##vso[task.setvariable variable=SCANNER_PATH]$SCANNER_PATH"
     displayName: 'Install SonarScanner CLI'
@@ -66,8 +67,8 @@ steps:
     continueOnError: true
 
   # Run SonarQube Analysis
-  - script: |
-      ${SCANNER_PATH}/sonar-scanner \
+  - bash: |
+      "$SCANNER_PATH/sonar-scanner" \
         -Dsonar.projectKey=$(SONAR_PROJECT_KEY) \
         -Dsonar.projectName=go-gantt \
         -Dsonar.sources=. \
