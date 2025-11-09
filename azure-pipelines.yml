@@ -48,6 +48,9 @@ steps:
         exit 1
       fi
       
+      # Make sonar-scanner executable
+      chmod +x sonar-scanner-5.0.1.3006-linux/bin/sonar-scanner
+      
       SCANNER_PATH="$BUILD_DIR/sonar-scanner-5.0.1.3006-linux/bin"
       echo "SonarScanner installed at: $SCANNER_PATH"
       ls -la "$SCANNER_PATH"
