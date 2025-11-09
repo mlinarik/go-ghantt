@@ -11,7 +11,7 @@ pool:
 variables:
   - group: 'sonarqube'  # Should contain: SONAR_PROJECT_KEY, SONAR_HOST_URL, SONAR_TOKEN
   - name: GOVERSION
-    value: '1.21'
+    value: '1.23.3'
 
 steps:
   # Install Java (required for SonarQube Scanner)
