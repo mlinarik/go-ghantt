@@ -66,8 +66,7 @@ steps:
 
   # Run SonarQube Analysis
   - script: |
-      export PATH="$SCANNER_PATH:$PATH"
-      sonar-scanner \
+      ${SCANNER_PATH}/sonar-scanner \
         -Dsonar.projectKey=$(SONAR_PROJECT_KEY) \
         -Dsonar.projectName=go-gantt \
         -Dsonar.sources=. \
