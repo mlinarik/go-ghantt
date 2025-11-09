@@ -34,11 +34,15 @@ steps:
       echo "##vso[task.prependpath]$(pwd)/sonar-scanner-5.0.1.3006-linux/bin"
     displayName: 'Install SonarScanner CLI'
 
-  # Set up Go environment
-  - task: GoTool@0
-    displayName: 'Set up Go'
-    inputs:
-      version: '$(GOVERSION)'
+  # Check Go installation
+  - script: |
+      if ! command -v go &> /dev/null; then
+        echo "##vso[task.logissue type=error]Go is not installed on this agent"
+        exit 1
+      fi
+      go version
+      echo "Go is available at: $(which go)"
+    displayName: 'Verify Go Installation'
 
   # Get Go dependencies
   - script: |
