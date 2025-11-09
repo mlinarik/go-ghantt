@@ -16,7 +16,7 @@ steps:
   - task: SonarQubePrepare@5
     displayName: 'Prepare SonarQube Analysis'
     inputs:
-      SonarQube: 'SonarQube Community Build'
+      SonarQube: 'SonarQube'
       scannerMode: 'CLI'
       configMode: 'manual'
       cliProjectKey: '$(SONAR_PROJECT_KEY)'
