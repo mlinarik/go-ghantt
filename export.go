@@ -32,7 +32,7 @@ type pngRenderContext struct {
 // GeneratePNG creates a PNG image of the Gantt chart
 func GeneratePNG(chart *Chart) ([]byte, error) {
 	quarters := calculateQuarters(chart.StartYear, chart.StartQ, chart.EndYear, chart.EndQ)
-	
+
 	config := pngLayoutConfig{
 		headerHeight:         80,
 		rowHeight:            40,
@@ -163,7 +163,7 @@ func GeneratePDF(chart *Chart) ([]byte, error) {
 	pdf.AddPage()
 
 	quarters := calculateQuarters(chart.StartYear, chart.StartQ, chart.EndYear, chart.EndQ)
-	
+
 	config := pdfLayoutConfig{
 		headerHeight:         20.0,
 		rowHeight:            10.0,
@@ -241,7 +241,7 @@ func (ctx *pdfRenderContext) writeCategory(cat Category, currentY float64) float
 	for _, task := range cat.Tasks {
 		currentY = ctx.writeTask(task, cat.Color, currentY)
 	}
-	
+
 	return currentY
 }
 
