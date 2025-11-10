@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	chartIDPath         = "/charts/{id}"
-	contentTypeHeader   = "Content-Type"
-	jsonContentType     = "application/json"
-	chartNotFoundMsg    = "Chart not found"
-	contentDisposition  = "Content-Disposition"
+	chartIDPath        = "/charts/{id}"
+	contentTypeHeader  = "Content-Type"
+	jsonContentType    = "application/json"
+	chartNotFoundMsg   = "Chart not found"
+	contentDisposition = "Content-Disposition"
 )
 
 var (

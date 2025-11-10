@@ -7,57 +7,57 @@ import (
 )
 
 type svgLayoutConfig struct {
-	headerHeight          int
-	baseRowHeight         int
-	quarterWidth          int
-	labelWidth            int
-	padding               int
-	categoryHeaderHeight  int
-	titleLineHeight       int
-	descLineHeight        int
+	headerHeight           int
+	baseRowHeight          int
+	quarterWidth           int
+	labelWidth             int
+	padding                int
+	categoryHeaderHeight   int
+	titleLineHeight        int
+	descLineHeight         int
 	verticalPaddingPerTask int
 }
 
 type svgRenderContext struct {
-	buf               *bytes.Buffer
-	quarters          []quarterInfo
-	totalQuarters     int
-	config            svgLayoutConfig
-	perTaskHeights    map[string]int
+	buf                *bytes.Buffer
+	quarters           []quarterInfo
+	totalQuarters      int
+	config             svgLayoutConfig
+	perTaskHeights     map[string]int
 	perCategoryHeights map[string]int
 }
 
 // GenerateSVG creates an SVG representation of the Gantt chart
 func GenerateSVG(chart *Chart) (string, error) {
 	quarters := calculateQuarters(chart.StartYear, chart.StartQ, chart.EndYear, chart.EndQ)
-	
+
 	config := svgLayoutConfig{
-		headerHeight:          80,
-		baseRowHeight:         40,
-		quarterWidth:          120,
-		labelWidth:            200,
-		padding:               20,
-		categoryHeaderHeight:  35,
-		titleLineHeight:       14,
-		descLineHeight:        12,
+		headerHeight:           80,
+		baseRowHeight:          40,
+		quarterWidth:           120,
+		labelWidth:             200,
+		padding:                20,
+		categoryHeaderHeight:   35,
+		titleLineHeight:        14,
+		descLineHeight:         12,
 		verticalPaddingPerTask: 8,
 	}
 
 	perTaskHeights, perCategoryHeights := calculateDynamicHeights(chart, config)
-	
+
 	totalCategoryHeadersHeight := sumCategoryHeights(chart, perCategoryHeights)
 	totalTaskHeight := sumTaskHeights(chart, perTaskHeights)
-	
+
 	width := config.labelWidth + len(quarters)*config.quarterWidth + config.padding*2
 	height := config.headerHeight + totalCategoryHeadersHeight + totalTaskHeight + config.padding*2
 
 	var buf bytes.Buffer
 	ctx := &svgRenderContext{
-		buf:               &buf,
-		quarters:          quarters,
-		totalQuarters:     len(quarters),
-		config:            config,
-		perTaskHeights:    perTaskHeights,
+		buf:                &buf,
+		quarters:           quarters,
+		totalQuarters:      len(quarters),
+		config:             config,
+		perTaskHeights:     perTaskHeights,
 		perCategoryHeights: perCategoryHeights,
 	}
 
@@ -74,7 +74,7 @@ func GenerateSVG(chart *Chart) (string, error) {
 func calculateDynamicHeights(chart *Chart, config svgLayoutConfig) (map[string]int, map[string]int) {
 	perTaskHeights := make(map[string]int)
 	perCategoryHeights := make(map[string]int)
-	
+
 	for _, cat := range chart.Categories {
 		catNameLines := wrapText(cat.Name, 30)
 		catH := config.categoryHeaderHeight
@@ -94,7 +94,7 @@ func calculateDynamicHeights(chart *Chart, config svgLayoutConfig) (map[string]i
 			perTaskHeights[task.ID] = h
 		}
 	}
-	
+
 	return perTaskHeights, perCategoryHeights
 }
 
@@ -130,7 +130,7 @@ func (ctx *svgRenderContext) writeBackground(width, height int) {
 }
 
 func (ctx *svgRenderContext) writeTitle(title string) {
-	ctx.buf.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="title">%s</text>`, 
+	ctx.buf.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="title">%s</text>`,
 		ctx.config.padding, ctx.config.padding+20, escapeXML(title)))
 }
 
@@ -203,13 +203,13 @@ func (ctx *svgRenderContext) writeTasks(tasks []Task, catColor string, currentY 
 		if h == 0 {
 			h = ctx.config.baseRowHeight
 		}
-		
+
 		ctx.buf.WriteString(fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="#fff" stroke="#ddd" stroke-width="1"/>`,
 			ctx.config.padding, currentY, ctx.config.labelWidth, h))
 
 		ctx.writeTaskText(task, currentY)
 		ctx.writeTaskBar(task, catColor, currentY, h)
-		
+
 		currentY += h
 	}
 	return currentY
@@ -219,7 +219,7 @@ func (ctx *svgRenderContext) writeTaskText(task Task, currentY int) int {
 	titleLines := wrapText(task.Title, 28)
 	descLines := wrapText(task.Description, 36)
 	textY := currentY + 14
-	
+
 	if len(titleLines) > 0 {
 		ctx.buf.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="label">`, ctx.config.padding+10, textY))
 		for i, ln := range titleLines {
@@ -232,7 +232,7 @@ func (ctx *svgRenderContext) writeTaskText(task Task, currentY int) int {
 		ctx.buf.WriteString(`</text>`)
 		textY += len(titleLines) * ctx.config.titleLineHeight
 	}
-	
+
 	if len(descLines) > 0 {
 		ctx.buf.WriteString(fmt.Sprintf(`<text x="%d" y="%d" class="desc">`, ctx.config.padding+10, textY+4))
 		for i, ln := range descLines {
@@ -244,7 +244,7 @@ func (ctx *svgRenderContext) writeTaskText(task Task, currentY int) int {
 		}
 		ctx.buf.WriteString(`</text>`)
 	}
-	
+
 	return textY
 }
 
